@@ -77,25 +77,32 @@ class TrafficOverview extends WidgetBase
             ]);
 
             $rows = $data->getRows();
-            if (!$rows) {
-                throw new ApplicationException('No traffic found yet.');
+
+            // Index returned rows by date
+            $pointsByDate = [];
+            if ($rows) {
+                foreach ($rows as $row) {
+                    $date = $row->getDimensionValues()[0]->getValue();
+                    $views = $row->getMetricValues()[0]->getValue();
+                    $pointsByDate[$date] = (int) $views;
+                }
             }
 
+            // Fill in all dates in the range, defaulting to 0
             $points = [];
-            foreach ($rows as $row) {
-                $date = $row->getDimensionValues()[0]->getValue();
-                $views = $row->getMetricValues()[0]->getValue();
-                $point = [
-                    strtotime($date)*1000,
-                    $views
+            $period = new \DatePeriod(
+                new \DateTime("-{$days} days"),
+                new \DateInterval('P1D'),
+                new \DateTime('tomorrow')
+            );
+
+            foreach ($period as $date) {
+                $key = $date->format('Ymd');
+                $points[] = [
+                    $date->getTimestamp() * 1000,
+                    $pointsByDate[$key] ?? 0
                 ];
-
-                $points[] = $point;
             }
-
-            usort($points, function($a, $b) {
-                return $a[0] - $b[0];
-            });
 
             $widget->vars['rows'] = str_replace('"', '', substr(substr(json_encode($points), 1), 0, -1));
         });
