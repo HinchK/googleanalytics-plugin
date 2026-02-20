@@ -18,7 +18,7 @@ class Plugin extends PluginBase
         return [
             'name' => 'Google Analytics',
             'description' => 'rainlab.googleanalytics::lang.strings.plugin_desc',
-            'author' => 'Alexey Bobkov, Samuel Georges',
+            'author' => 'October CMS',
             'icon' => 'icon-bar-chart-o',
             'homepage' => 'https://github.com/rainlab/googleanalytics-plugin'
         ];
